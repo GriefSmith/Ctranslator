@@ -3,7 +3,7 @@
   "name": "transC",
   "description": "Spanish to English translator for Canva designs",
   "license": "SEE LICENSE IN LICENSE.md",
-  "author": "Canva Pty Ltd.",
+  "author": "GriefSmith",
   "scripts": {
     "extract": "formatjs extract \"src/**/*.{ts,tsx}\" --out-file dist/messages_en.json",
     "build": "webpack --config webpack.config.ts --mode production && npm run extract",
