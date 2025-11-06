@@ -1,0 +1,533 @@
+import {
+  Button,
+  Rows,
+  Text,
+  Title,
+  FormField,
+  Select,
+  TextInput,
+  LoadingIndicator,
+  Alert,
+  Columns,
+  Column,
+  Box,
+  Checkbox,
+  MultilineInput,
+} from "@canva/app-ui-kit";
+import { requestOpenExternalUrl } from "@canva/platform";
+import { FormattedMessage, useIntl } from "react-intl";
+import { useSelection } from "utils/use_selection_hook";
+import { useState, useCallback } from "react";
+import * as styles from "styles/components.css";
+
+export const DOCS_URL = "https://www.canva.dev/docs/apps/";
+
+// Translation item type
+type TranslationItem = {
+  id: string;
+  originalText: string;
+  translatedText: string;
+  reviewed: boolean;
+  contentIndex: number; // Index in the draft.contents array
+};
+
+// Configuration
+const MAX_ELEMENTS = 50; // Limit to prevent overwhelming the UI
+
+// Translation service using MyMemory (free, no API key required)
+const translateText = async (
+  text: string,
+  sourceLang: string = "es",
+  targetLang: string = "en",
+): Promise<string> => {
+  if (!text || text.trim().length === 0) {
+    throw new Error("Empty text cannot be translated");
+  }
+
+  // Clean text: remove excessive whitespace and newlines
+  const cleanText = text.trim().replace(/\s+/g, " ");
+
+  if (cleanText.length > 500) {
+    throw new Error("Text too long (max 500 characters per element)");
+  }
+
+  try {
+    // Using MyMemory API - free, no key required, better reliability
+    const encodedText = encodeURIComponent(cleanText);
+    const url = `https://api.mymemory.translated.net/get?q=${encodedText}&langpair=${sourceLang}|${targetLang}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("API Error Response:", errorText);
+      throw new Error(`Translation API returned ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (data.responseStatus !== 200) {
+      console.error("API Response:", data);
+      throw new Error(data.responseDetails || "Translation failed");
+    }
+
+    return data.responseData?.translatedText || text;
+  } catch (error: any) {
+    console.error("Translation error:", error);
+    throw new Error(`Translation failed: ${error.message}`);
+  }
+};
+
+type WorkflowStage = "setup" | "translating" | "review" | "finalize";
+
+export const App = () => {
+  const currentSelection = useSelection("plaintext");
+  const [stage, setStage] = useState<WorkflowStage>("setup");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [translations, setTranslations] = useState<TranslationItem[]>([]);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [currentDraft, setCurrentDraft] = useState<any>(null); // Store the draft
+  const [originalTexts, setOriginalTexts] = useState<Record<number, string>>(
+    {},
+  ); // Backup of originals
+
+  const intl = useIntl();
+
+  // Fixed translation: Spanish → English
+  const targetLanguage = "en";
+
+  // Scan and translate all text in the design
+  const scanAndTranslate = useCallback(async () => {
+    // Validation
+    if (!currentSelection || currentSelection.count === 0) {
+      setError("⚠️ Please select text elements in your design to translate");
+      return;
+    }
+
+    if (currentSelection.count > MAX_ELEMENTS) {
+      setError(
+        `⚠️ Too many elements selected (${currentSelection.count}). Please select ${MAX_ELEMENTS} or fewer elements.`,
+      );
+      return;
+    }
+
+    setIsProcessing(true);
+    setError(null);
+    setSuccessMessage(null);
+    setStage("translating");
+
+    try {
+      const draft = await currentSelection.read();
+      setCurrentDraft(draft); // Store draft for later use
+
+      const translationItems: TranslationItem[] = [];
+      let failedCount = 0;
+
+      // Collect and translate all text elements
+      for (let i = 0; i < draft.contents.length; i++) {
+        const content = draft.contents[i];
+        const originalText = content.text;
+
+        // Skip empty or whitespace-only text
+        if (!originalText || originalText.trim().length === 0) {
+          console.warn(`Skipping empty text at index ${i}`);
+          continue;
+        }
+
+        try {
+          // Translate each text element
+          const translatedText = await translateText(originalText, "es", "en");
+
+          translationItems.push({
+            id: `item-${i}`,
+            originalText,
+            translatedText,
+            reviewed: false,
+            contentIndex: i,
+          });
+        } catch (err) {
+          console.error(`Failed to translate item ${i}:`, err);
+          failedCount++;
+          // Add with original text as fallback
+          translationItems.push({
+            id: `item-${i}`,
+            originalText,
+            translatedText: originalText, // Fallback to original
+            reviewed: false,
+            contentIndex: i,
+          });
+        }
+      }
+
+      if (translationItems.length === 0) {
+        setError(
+          "⚠️ No valid text found to translate. Please select text elements.",
+        );
+        setStage("setup");
+        return;
+      }
+
+      setTranslations(translationItems);
+      setStage("review");
+
+      if (failedCount > 0) {
+        setSuccessMessage(
+          `Translated ${translationItems.length - failedCount}/${translationItems.length} elements (${failedCount} failed)`,
+        );
+      } else {
+        setSuccessMessage(
+          `✓ Translated ${translationItems.length} text element(s)`,
+        );
+      }
+    } catch (err: any) {
+      setError(`❌ Translation failed: ${err.message || "Please try again."}`);
+      console.error("Translation error:", err);
+      setStage("setup");
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [currentSelection]);
+
+  // Update a translation
+  const updateTranslation = useCallback((id: string, newText: string) => {
+    setTranslations((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, translatedText: newText } : item,
+      ),
+    );
+  }, []);
+
+  // Toggle reviewed status
+  const toggleReviewed = useCallback((id: string) => {
+    setTranslations((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, reviewed: !item.reviewed } : item,
+      ),
+    );
+  }, []);
+
+  // Apply translations to the design by modifying selected elements directly
+  const applyTranslations = useCallback(async () => {
+    if (!currentDraft) {
+      setError(
+        "❌ No draft available. Please restart the translation process.",
+      );
+      return;
+    }
+
+    setIsProcessing(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      // Backup original texts before modifying
+      const originals: Record<number, string> = {};
+      for (const item of translations) {
+        const content = currentDraft.contents[item.contentIndex];
+        if (content) {
+          originals[item.contentIndex] = content.text; // Save original
+          content.text = item.translatedText; // Apply translation
+        }
+      }
+      setOriginalTexts(originals);
+
+      // Save all changes back to the design
+      await currentDraft.save();
+
+      setStage("finalize");
+      setSuccessMessage("✓ Translations applied successfully!");
+    } catch (err: any) {
+      setError(
+        `❌ Failed to apply translations: ${err.message || "Please try again."}`,
+      );
+      console.error("Apply error:", err);
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [translations, currentDraft]);
+
+  // Undo translations - simply restore original Spanish text
+  const undoTranslations = useCallback(async () => {
+    if (Object.keys(originalTexts).length === 0) {
+      setError("❌ No original text available to restore.");
+      return;
+    }
+
+    if (!currentSelection || currentSelection.count === 0) {
+      setError("❌ Please select the same text elements to undo.");
+      return;
+    }
+
+    setIsProcessing(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      // Read a FRESH draft (required by Canva after previous save)
+      const freshDraft = await currentSelection.read();
+
+      // Restore original Spanish text
+      for (const [indexStr, originalText] of Object.entries(originalTexts)) {
+        const index = parseInt(indexStr);
+        const content = freshDraft.contents[index];
+        if (content) {
+          content.text = originalText;
+        }
+      }
+
+      // Save restored text back to design
+      await freshDraft.save();
+
+      setSuccessMessage(
+        "✓ Reverted to original Spanish text. Re-select and translate again if needed.",
+      );
+    } catch (err: any) {
+      setError(`❌ Failed to undo: ${err.message || "Please try again."}`);
+      console.error("Undo error:", err);
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [currentSelection, originalTexts]);
+
+  // Reset workflow
+  const resetWorkflow = useCallback(() => {
+    setStage("setup");
+    setTranslations([]);
+    setCurrentDraft(null);
+    setOriginalTexts({});
+    setError(null);
+    setSuccessMessage(null);
+  }, []);
+
+  const isTextSelected = currentSelection && currentSelection.count > 0;
+  const allReviewed =
+    translations.length > 0 && translations.every((t) => t.reviewed);
+
+  return (
+    <div className={styles.scrollContainer}>
+      <Rows spacing="2u">
+        <Title size="medium">Spanish → English Translator</Title>
+
+        <Text>
+          Professional translation tool for Spanish documents. Select text,
+          translate to English, review, and export.
+        </Text>
+
+        {error && <Alert tone="critical">{error}</Alert>}
+        {successMessage && <Alert tone="positive">{successMessage}</Alert>}
+
+        {/* Setup Stage */}
+        {stage === "setup" && (
+          <>
+            <Box paddingY="1u">
+              <Rows spacing="1u">
+                <Text tone="tertiary" size="small">
+                  Translation: Spanish → English
+                </Text>
+                <Text>
+                  {isTextSelected
+                    ? `✓ Selected ${currentSelection.count} text element(s)`
+                    : "⚠ Select text elements in your design to begin"}
+                </Text>
+              </Rows>
+            </Box>
+
+            <Button
+              variant="primary"
+              onClick={scanAndTranslate}
+              disabled={!isTextSelected || isProcessing}
+              stretch
+            >
+              {isProcessing
+                ? "Translating to English..."
+                : "Translate to English"}
+            </Button>
+          </>
+        )}
+
+        {/* Review Stage */}
+        {stage === "review" && (
+          <>
+            <Title size="small">Review English Translations</Title>
+            <Text size="small" tone="tertiary">
+              Review and edit each translation. Use multiline fields for longer
+              text.
+            </Text>
+
+            <Box paddingY="1u">
+              <Rows spacing="2u">
+                {translations.map((item, index) => (
+                  <Box
+                    key={item.id}
+                    padding="2u"
+                    background="neutralLow"
+                    borderRadius="standard"
+                  >
+                    <Rows spacing="1.5u">
+                      <Text size="small" tone="tertiary">
+                        Item {index + 1} of {translations.length}
+                      </Text>
+
+                      <FormField
+                        label="🇪🇸 Spanish (Original)"
+                        value={item.originalText}
+                        control={(props) => (
+                          <MultilineInput
+                            {...props}
+                            disabled
+                            minRows={2}
+                            maxRows={6}
+                          />
+                        )}
+                      />
+
+                      <FormField
+                        label={`🇺🇸 English Translation ${item.reviewed ? "✓" : ""}`}
+                        value={item.translatedText}
+                        control={(props) => (
+                          <MultilineInput
+                            {...props}
+                            onChange={(value) =>
+                              updateTranslation(item.id, value)
+                            }
+                            minRows={3}
+                            maxRows={8}
+                            placeholder="Edit translation here..."
+                          />
+                        )}
+                      />
+
+                      <Checkbox
+                        label="✓ Reviewed & approved"
+                        value={item.reviewed}
+                        onChange={() => toggleReviewed(item.id)}
+                      />
+                    </Rows>
+                  </Box>
+                ))}
+              </Rows>
+            </Box>
+
+            <Columns spacing="1u">
+              <Column>
+                <Button variant="secondary" onClick={resetWorkflow} stretch>
+                  Cancel
+                </Button>
+              </Column>
+              <Column>
+                <Button
+                  variant="primary"
+                  onClick={applyTranslations}
+                  disabled={isProcessing || !allReviewed}
+                  stretch
+                >
+                  {isProcessing ? "Applying..." : "Apply Translations"}
+                </Button>
+              </Column>
+            </Columns>
+
+            <Box paddingY="1u">
+              {allReviewed ? (
+                <Alert tone="positive">
+                  ✓ All {translations.length} translation(s) reviewed! Ready to
+                  apply.
+                </Alert>
+              ) : (
+                <Alert tone="info">
+                  💡 Please review and approve all {translations.length}{" "}
+                  translation(s) before applying (
+                  {translations.filter((t) => t.reviewed).length}/
+                  {translations.length} done)
+                </Alert>
+              )}
+            </Box>
+          </>
+        )}
+
+        {/* Finalize Stage */}
+        {stage === "finalize" && (
+          <>
+            <Title size="small">Translation Complete!</Title>
+            <Text size="small">
+              ✓ {translations.length} text element(s) translated and applied to
+              your design.
+            </Text>
+
+            <Box paddingY="2u">
+              <Rows spacing="2u">
+                <Title size="xsmall">Before & After Comparison:</Title>
+                {translations.map((item, index) => (
+                  <Box
+                    key={item.id}
+                    padding="1.5u"
+                    background="neutralLow"
+                    borderRadius="standard"
+                  >
+                    <Rows spacing="1u">
+                      <Text size="xsmall" tone="tertiary">
+                        Item {index + 1}
+                      </Text>
+                      <Box>
+                        <Text size="small" tone="tertiary">
+                          🇪🇸 Original:
+                        </Text>
+                        <Text size="small">{item.originalText}</Text>
+                      </Box>
+                      <Box>
+                        <Text size="small" tone="tertiary">
+                          🇺🇸 Translated:
+                        </Text>
+                        <Text size="small">{item.translatedText}</Text>
+                      </Box>
+                    </Rows>
+                  </Box>
+                ))}
+              </Rows>
+            </Box>
+
+            <Alert tone="info">
+              💡 Select the text elements to restore original Spanish text.
+            </Alert>
+
+            <Columns spacing="1u">
+              <Column>
+                <Button
+                  variant="secondary"
+                  onClick={undoTranslations}
+                  disabled={isProcessing || !isTextSelected}
+                  stretch
+                >
+                  {isProcessing ? "Restoring..." : "↩ Undo Changes"}
+                </Button>
+              </Column>
+              <Column>
+                <Button variant="primary" onClick={resetWorkflow} stretch>
+                  New Translation
+                </Button>
+              </Column>
+            </Columns>
+
+            {!isTextSelected && (
+              <Text size="small" tone="tertiary">
+                ⚠ Select the text elements to enable undo
+              </Text>
+            )}
+
+            <Box paddingTop="2u">
+              <Text size="small" tone="tertiary">
+                To export: Use <strong>File → Download</strong> or{" "}
+                <strong>File → Share</strong>
+              </Text>
+            </Box>
+          </>
+        )}
+
+        {isProcessing && stage === "translating" && <LoadingIndicator />}
+      </Rows>
+    </div>
+  );
+};
