@@ -1,4 +1,4 @@
-# Spanish → English Translator for Canva
+# transC - Spanish → English Translator for Canva
 
 A Canva app that translates Spanish text elements to English with a professional review workflow.
 
@@ -86,7 +86,7 @@ The app uses **MyMemory API**, a free translation service:
 ## Project Structure
 
 ```
-/Users/doggo/design-translator/
+transC/
 ├── src/
 │   ├── app.tsx              # Main application logic
 │   └── index.tsx            # Entry point
