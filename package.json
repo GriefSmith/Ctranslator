@@ -1,7 +1,7 @@
 {
   "private": true,
-  "name": "transC",
-  "description": "Spanish to English translator for Canva designs",
+  "name": "ctranslator",
+  "description": "Bidirectional translation app for Canva designs - Spanish↔English with future multi-language support",
   "license": "SEE LICENSE IN LICENSE.md",
   "author": "GriefSmith",
   "scripts": {

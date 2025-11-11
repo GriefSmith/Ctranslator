@@ -1,15 +1,39 @@
-# transC - Spanish → English Translator for Canva
+# Ctranslator - Professional Translation Tool for Canva
 
-A Canva app that translates Spanish text elements to English with a professional review workflow.
+A Canva app for translating text elements in your designs with an intelligent review workflow.
 
-## Features
+## Current Features (v1.0)
 
-- ✅ Automatic Spanish → English translation using MyMemory API
+- ✅ **Spanish → English translation** using MyMemory API
 - ✅ Review and edit translations before applying
 - ✅ Direct in-place text replacement (no duplicate elements)
-- ✅ Undo functionality to restore original Spanish text
+- ✅ Undo functionality to restore original text
 - ✅ Before/after comparison view
 - ✅ Handles up to 50 text elements at once
+- ✅ Preserves bullet formatting and text structure
+
+## Roadmap
+
+### 🚧 Phase 2: Bidirectional Translation (In Development)
+
+- [ ] English → Spanish translation
+- [ ] Language direction toggle in UI
+- [ ] Automatic language detection
+
+### 🔮 Phase 3: Multi-Language Support (Future)
+
+- [ ] Support for 100+ language pairs via MyMemory API
+- [ ] Language selection dropdown
+- [ ] Popular language presets (French, German, Portuguese, etc.)
+- [ ] Custom language pair configuration
+
+### 🤖 Phase 4: AI-Enhanced Translation (Future)
+
+- [ ] OpenAI integration for context-aware translations
+- [ ] Alternative free LLM API options
+- [ ] Tone and style customization
+- [ ] Professional/casual translation modes
+- [ ] Industry-specific terminology support
 
 ## Requirements
 
@@ -45,13 +69,13 @@ A Canva app that translates Spanish text elements to English with a professional
 
 ### 1. Setup
 
-- Open a Canva design with Spanish text
-- Open the Spanish → English Translator app from the side panel
+- Open a Canva design with text you want to translate
+- Open the Ctranslator app from the side panel
 - Select text elements you want to translate (Ctrl/Cmd + A for all)
 
 ### 2. Translate
 
-- Click **"Translate to English"**
+- Click **"Translate to English"** (currently Spanish → English)
 - The app will automatically translate all selected text using MyMemory API
 - Wait for translation to complete
 
@@ -64,13 +88,13 @@ A Canva app that translates Spanish text elements to English with a professional
 
 ### 4. Apply
 
-- Click **"Apply Translations"** to replace the Spanish text with English
-- Original Spanish text is automatically backed up for undo
+- Click **"Apply Translations"** to replace the original text with translations
+- Original text is automatically backed up for undo
 
 ### 5. Finalize
 
 - Review the before/after comparison
-- **Undo Changes**: Restore original Spanish text (requires text selection)
+- **Undo Changes**: Restore original text (requires text selection)
 - **New Translation**: Start a fresh translation session
 
 ## Translation API
@@ -130,8 +154,19 @@ CANVA_HMR_ENABLED=true
 - Maximum 50 text elements per translation session
 - 500 character limit per text element (MyMemory API)
 - 10,000 words per day (free tier)
+- Currently only Spanish → English (bidirectional coming soon)
 - Font styles are preserved by Canva but not explicitly managed by the app
 - Requires manual layout adjustment if translated text is longer/shorter
+
+## Contributing
+
+Ctranslator is open to collaboration! We're actively working on:
+
+- Bidirectional translation (ES ↔ EN)
+- Multi-language support
+- AI-enhanced translations
+
+If you'd like to contribute, please reach out or submit a PR.
 
 ## Tips
 
@@ -140,12 +175,11 @@ CANVA_HMR_ENABLED=true
 - Translate in batches if working with large designs
 - Check text layout after applying translations
 
-## Future Enhancements
+## Team
 
-- Translation memory/glossary support
-- Multiple language pair support
-- Batch processing for multiple designs
-- Integration with premium translation APIs (DeepL, Google Translate)
+- **Lead Developer**: GriefSmith
+- **Status**: Open to collaboration
+- **Looking for**: Contributors interested in translation, i18n, and LLM integration
 
 ## License
 
