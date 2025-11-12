@@ -110,7 +110,7 @@ The app uses **MyMemory API**, a free translation service:
 ## Project Structure
 
 ```
-transC/
+Ctranslator/
 ├── src/
 │   ├── app.tsx              # Main application logic
 │   └── index.tsx            # Entry point
@@ -154,7 +154,7 @@ CANVA_HMR_ENABLED=true
 - Maximum 50 text elements per translation session
 - 500 character limit per text element (MyMemory API)
 - 10,000 words per day (free tier)
-- Currently only Spanish → English (bidirectional coming soon)
+- Currently only Spanish → English (bidirectional)
 - Font styles are preserved by Canva but not explicitly managed by the app
 - Requires manual layout adjustment if translated text is longer/shorter
 
