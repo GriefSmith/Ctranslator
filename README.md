@@ -26,14 +26,13 @@ Transform your Canva designs with professional Spanish ↔ English translation. 
 - Presentations and documents
 - Educational resources
 - Business communications
+- Resumes (CVs) and personal cards
 - Creative projects requiring multilingual content
 
 ## 🔮 Coming Soon
 
-- 🌐 Additional language pairs (French, German, Portuguese, Italian)
+- 🌐 Additional language pairs
 - 🤖 AI-enhanced translations with context awareness
-- 💾 Translation memory for consistency
-- 📚 Custom glossaries for specialized terminology
 
 ## Requirements
 
