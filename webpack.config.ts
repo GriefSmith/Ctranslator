@@ -6,6 +6,7 @@ import { transform } from "@formatjs/ts-transformer";
 import * as chalk from "chalk";
 import { config } from "dotenv";
 import { Configuration as DevServerConfiguration } from "webpack-dev-server";
+import * as CopyWebpackPlugin from "copy-webpack-plugin";
 
 config();
 
@@ -183,6 +184,16 @@ export function buildConfig({
       }),
       // Apps can only submit a single JS file via the Developer Portal
       new optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
+      // Copy index.html to dist for production deployment
+      mode === "production" &&
+        new CopyWebpackPlugin({
+          patterns: [
+            {
+              from: path.resolve(process.cwd(), "public", "index.html"),
+              to: path.resolve(process.cwd(), "dist"),
+            },
+          ],
+        }),
     ].filter(Boolean),
     ...buildDevConfig(devConfig),
   };
