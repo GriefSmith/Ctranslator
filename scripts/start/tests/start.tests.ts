@@ -1,5 +1,3 @@
- 
-
 import type { ChildProcess } from "child_process";
 import { spawn } from "child_process";
 import * as treeKill from "tree-kill";

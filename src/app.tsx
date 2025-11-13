@@ -54,7 +54,7 @@ const LANGUAGE_CONFIG = {
 } as const;
 
 // Bullet characters that indicate list items
-const BULLET_PATTERNS = /^[\s]*[•\-\*\u2022\u2023\u25E6\u2043\u2219]\s+/m;
+const BULLET_PATTERNS = /^[\s]*[•\-*\u2022\u2023\u25E6\u2043\u2219]\s+/m;
 
 /**
  * Checks if text contains bulleted list formatting
@@ -103,7 +103,7 @@ const cleanTextPreservingFormatting = (text: string): string => {
  */
 const formatTextForDisplay = (text: string): ReactElement[] => {
   if (!text) {
-    return [<Text key="empty" size="small"></Text>];
+    return [<Text key="empty" size="small" />];
   }
 
   const lines = text.split("\n");
@@ -119,7 +119,7 @@ const formatTextForDisplay = (text: string): ReactElement[] => {
     }
     // Check if line starts with a bullet
     const bulletMatch = trimmed.match(
-      /^([•\-\*\u2022\u2023\u25E6\u2043\u2219])\s*(.*)$/,
+      /^([•\-*\u2022\u2023\u25E6\u2043\u2219])\s*(.*)$/,
     );
     if (bulletMatch) {
       // Render bullet point with proper spacing
@@ -163,18 +163,18 @@ const restoreBulletFormatting = (
   }
 
   // Extract bullet markers and structure from original (preserve line structure)
-  const originalStructure: Array<{
+  const originalStructure: {
     marker: string;
     text: string;
     isEmpty: boolean;
-  }> = [];
+  }[] = [];
   originalLines.forEach((line) => {
     const trimmed = line.trim();
     if (trimmed.length === 0) {
       originalStructure.push({ marker: "", text: "", isEmpty: true });
     } else {
       const match = line.match(
-        /^[\s]*([•\-\*\u2022\u2023\u25E6\u2043\u2219])\s*(.*)$/,
+        /^[\s]*([•\-*\u2022\u2023\u25E6\u2043\u2219])\s*(.*)$/,
       );
       if (match) {
         originalStructure.push({
