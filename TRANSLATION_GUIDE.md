@@ -1,34 +1,47 @@
-# Spanish → English Translator - User Guide
+# Ctranslator - Complete User Guide
 
 ## Overview
 
-This Canva app translates Spanish text elements to English with a professional review workflow. Perfect for translating documents, presentations, and designs.
+This Canva app provides bidirectional Spanish ↔ English translation with a professional review workflow. Perfect for translating documents, presentations, designs, and any multilingual content.
+
+**Available Translations:**
+
+- 🇪🇸 Spanish → 🇺🇸 English
+- 🇺🇸 English → 🇪🇸 Spanish
 
 ## Complete Workflow
 
 ### 1. Setup Stage
 
 **What to do:**
-- Open your Canva design with Spanish text
-- Launch the "Spanish → English Translator" app from the side panel
+
+- Open your Canva design with text you want to translate
+- Launch **Ctranslator** from the Apps panel
 - Select the text elements you want to translate
   - Press `Ctrl/Cmd + A` to select all text elements
   - Or manually select specific elements
 
 **What you'll see:**
+
 - The app displays: "✓ Selected X text element(s)"
-- "Translate to English" button becomes enabled
+- Two translation buttons available:
+  - **"Translate to English"** (for Spanish text)
+  - **"Translate to Spanish"** (for English text)
 
 ### 2. Translation Stage
 
 **What happens:**
-- Click **"Translate to English"**
+
+- Click your desired translation button:
+  - **"Translate to English"** - Converts Spanish → English
+  - **"Translate to Spanish"** - Converts English → Spanish
 - The app automatically translates each selected text element
 - Uses MyMemory API (free, no signup required)
 - Shows progress during translation
 - Handles errors gracefully (skips empty text, shows failures)
 
 **Wait time:**
+
 - ~500ms per element
 - 10 elements ≈ 5 seconds
 - 50 elements (max) ≈ 25 seconds
@@ -37,47 +50,57 @@ This Canva app translates Spanish text elements to English with a professional r
 
 **What you'll see:**
 For each translation, a card showing:
+
 - Item number (e.g., "Item 1 of 5")
-- 🇪🇸 **Spanish (Original)** - Read-only multiline field
-- 🇺🇸 **English Translation** - Editable multiline field (3-8 rows)
+- **Original Text** - Read-only multiline field (shows source language)
+- **Translation** - Editable multiline field (3-8 rows, shows target language)
 - ☐ **✓ Reviewed & approved** - Checkbox
 
+**Language Labels:**
+
+- Spanish → English: 🇪🇸 Spanish (Original) → 🇺🇸 English (Translation)
+- English → Spanish: 🇺🇸 English (Original) → 🇪🇸 Spanish (Translation)
+
 **What to do:**
+
 1. Read the automatic translation
-2. Edit if needed (click in the English field)
+2. Edit if needed (click in the translation field)
 3. Check "✓ Reviewed & approved" when satisfied
 4. Repeat for all items
 
 **Progress tracking:**
+
 - Progress shown at bottom: "2/5 done"
 - "Apply Translations" button is disabled until all items are reviewed
 
 ### 4. Apply Stage
 
 **What happens:**
+
 - Click **"Apply Translations"** (only enabled when all items reviewed)
-- Original Spanish text is backed up automatically
-- Text elements are replaced with English translations
+- Original text is backed up automatically
+- Text elements are replaced with translations
 - Changes are saved to your Canva design
 - You're moved to the Finalize stage
 
 ### 5. Finalize Stage
 
 **What you'll see:**
+
 - Success message: "✓ X text element(s) translated"
-- Before & After comparison cards showing:
-  - 🇪🇸 Original Spanish text
-  - 🇺🇸 Translated English text
+- Before & After comparison cards showing original and translated text
 
 **Your options:**
 
 #### Option 1: Undo Changes
+
 - Click **"↩ Undo Changes"** button
 - **Important:** Keep the same text elements selected
-- Restores original Spanish text
-- Original translations are preserved for re-editing
+- Restores original text in source language
+- Previous translations are preserved for re-editing
 
 #### Option 2: New Translation
+
 - Click **"New Translation"** button
 - Clears everything and returns to Setup stage
 - Ready to translate different elements or start fresh
@@ -87,13 +110,15 @@ For each translation, a card showing:
 ### ⚠️ Undo Requirements
 
 To use "Undo Changes", you **MUST**:
+
 1. Keep the same text elements selected
 2. Don't deselect or switch to different elements
 3. If you deselect by accident, re-select the same elements (Ctrl/Cmd + A)
 
-**Why?** The undo function needs to read a fresh draft from your selection to restore the Spanish text.
+**Why?** The undo function needs to read a fresh draft from your selection to restore the original text.
 
 **If you deselect:**
+
 - The "↩ Undo Changes" button becomes disabled
 - A warning appears: "⚠ Select the text elements to enable undo"
 - Solution: Re-select the same text elements
@@ -106,6 +131,7 @@ To use "Undo Changes", you **MUST**:
    - This enables the undo feature
 
 2. **Iterative refinement**
+
    ```
    Translate → Review → Apply → See results
         ↑                            ↓
@@ -126,24 +152,29 @@ To use "Undo Changes", you **MUST**:
 
 ### MyMemory API
 
-The app uses MyMemory, a free translation service:
+The app uses MyMemory, a trusted free translation service:
 
-**Pros:**
-- ✅ No API key required
-- ✅ Free to use
+**Advantages:**
+
+- ✅ No API key or signup required
+- ✅ Completely free to use
 - ✅ Reliable (99.9% uptime)
-- ✅ Good quality for Spanish ↔ English
+- ✅ High quality for Spanish ↔ English translation
+- ✅ Bidirectional support (both directions)
 
-**Limits:**
+**Usage Limits:**
+
 - 500 characters per text element
-- 10,000 words per day (free tier)
+- 10,000 words per day (generous free tier)
 - ~100 requests per minute
 
-**Quality tips:**
-- Review all translations manually
-- Edit for tone and context
-- Check for proper names (may be mistranslated)
-- Verify technical terms
+**Tips for Best Quality:**
+
+- Always review translations manually
+- Edit for tone, context, and brand voice
+- Double-check proper names (may be mistranslated)
+- Verify technical or industry-specific terms
+- Test with your target audience when possible
 
 ### Common Translation Issues
 
@@ -163,18 +194,22 @@ The app uses MyMemory, a free translation service:
 ## Error Messages
 
 ### "⚠️ Please select text elements"
+
 **Cause:** No text selected
 **Fix:** Select text elements using Ctrl/Cmd + A
 
 ### "⚠️ Too many elements selected (X). Please select 50 or fewer."
+
 **Cause:** More than 50 elements selected
 **Fix:** Translate in smaller batches
 
 ### "❌ Translation failed"
+
 **Cause:** Network error or API rate limit
 **Fix:** Wait 30 seconds and try again with fewer elements
 
 ### "❌ No draft available"
+
 **Cause:** Lost reference to design draft
 **Fix:** Restart the translation workflow
 
@@ -201,21 +236,25 @@ After applying translations:
 ## Troubleshooting
 
 ### Translations look wrong
+
 - This is normal - machine translation isn't perfect
 - Use the review stage to edit translations
 - This is why manual review is required
 
 ### Can't undo changes
+
 - Make sure the text elements are still selected
 - Select them again with Ctrl/Cmd + A
 - If you closed the design, you can't undo
 
 ### Some elements weren't translated
+
 - Check if they were skipped due to empty text
 - Look at the success message: "Translated X/Y elements (Z failed)"
 - Failed elements keep their original text
 
 ### Layout looks broken after translation
+
 - English text may be longer/shorter than Spanish
 - Manually adjust text boxes in Canva
 - Resize or reposition elements as needed
@@ -244,31 +283,35 @@ After applying translations:
 
 ## Future Features
 
-Planned enhancements:
-- Translation memory (remember previous translations)
-- Custom glossaries (your own term dictionary)
-- Multiple language pairs (not just Spanish → English)
-- Batch design processing (translate multiple designs at once)
-- Premium API integration (DeepL, Google Translate for better quality)
+We're constantly improving! Planned enhancements:
+
+- 🌐 **Additional Language Pairs**: French, German, Portuguese, Italian, and more
+- 🧠 **Translation Memory**: Remember and reuse your previous translations
+- 📚 **Custom Glossaries**: Define your own terminology dictionary
+- 🎨 **Batch Processing**: Translate multiple designs at once
+- 🤖 **AI Integration**: Premium AI-powered translations for enhanced quality
+- 💾 **Export/Import**: Save and share translation workflows
 
 ## Getting Help
 
-- **Canva Apps SDK Docs:** [canva.dev/docs/apps](https://www.canva.dev/docs/apps/)
-- **MyMemory API Docs:** [mymemory.translated.net/doc](https://mymemory.translated.net/doc)
+- **App Support**: Contact GriefSmith for bugs or feature requests
+- **Canva Help**: [canva.dev/docs/apps](https://www.canva.dev/docs/apps/)
+- **Translation API**: [mymemory.translated.net/doc](https://mymemory.translated.net/doc)
 
 ## Quick Reference
 
-| Stage | Action | Button |
-|-------|--------|--------|
-| Setup | Select text | n/a |
-| Setup | Start translation | "Translate to English" |
-| Review | Edit translation | Click in text field |
-| Review | Approve item | Check ✓ box |
-| Review | Cancel | "Cancel" |
-| Apply | Save to design | "Apply Translations" |
-| Finalize | Restore Spanish | "↩ Undo Changes" |
-| Finalize | Start over | "New Translation" |
+| Stage    | Action                | Button                 |
+| -------- | --------------------- | ---------------------- |
+| Setup    | Select text           | n/a                    |
+| Setup    | Start Spanish→English | "Translate to English" |
+| Setup    | Start English→Spanish | "Translate to Spanish" |
+| Review   | Edit translation      | Click in text field    |
+| Review   | Approve item          | Check ✓ box            |
+| Review   | Cancel workflow       | "Cancel"               |
+| Apply    | Save to design        | "Apply Translations"   |
+| Finalize | Restore original      | "↩ Undo Changes"      |
+| Finalize | Start fresh           | "New Translation"      |
 
 ---
 
-**Success!** You now have a professional tool for translating Spanish documents to English within Canva.
+**🎉 Success!** You now have a professional bidirectional translation tool for Spanish ↔ English content within Canva. Happy translating!

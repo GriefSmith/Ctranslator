@@ -1,39 +1,39 @@
 # Ctranslator - Professional Translation Tool for Canva
 
-A Canva app for translating text elements in your designs with an intelligent review workflow.
+Transform your Canva designs with professional Spanish ↔ English translation. Review, edit, and apply translations with confidence using our intelligent workflow.
 
-## Current Features (v1.0)
+## ✨ Features
 
-- ✅ **Spanish → English translation** using MyMemory API
-- ✅ Review and edit translations before applying
-- ✅ Direct in-place text replacement (no duplicate elements)
-- ✅ Undo functionality to restore original text
-- ✅ Before/after comparison view
-- ✅ Handles up to 50 text elements at once
-- ✅ Preserves bullet formatting and text structure
+- 🌍 **Bidirectional Translation**: Spanish → English AND English → Spanish
+- 🔍 **Review Workflow**: Edit every translation before applying
+- 🎯 **In-Place Replacement**: Updates text directly (no duplicate elements)
+- ↩️ **Undo Functionality**: Restore original text with one click
+- 📊 **Batch Processing**: Translate up to 50 text elements at once
+- 🎨 **Format Preservation**: Maintains bullet points and text structure
+- 🆓 **Free to Use**: No API keys or subscriptions required
 
-## Roadmap
+## 🚀 How It Works
 
-### 🚧 Phase 2: Bidirectional Translation (In Development)
+1. **Select** text elements in your Canva design
+2. **Choose** translation direction (Spanish ↔ English)
+3. **Review** and edit automatic translations
+4. **Apply** changes to your design
+5. **Undo** if needed or start a new translation
 
-- [ ] English → Spanish translation
-- [ ] Language direction toggle in UI
-- [ ] Automatic language detection
+## 🎯 Perfect For
 
-### 🔮 Phase 3: Multi-Language Support (Future)
+- Marketing materials and social media content
+- Presentations and documents
+- Educational resources
+- Business communications
+- Creative projects requiring multilingual content
 
-- [ ] Support for 100+ language pairs via MyMemory API
-- [ ] Language selection dropdown
-- [ ] Popular language presets (French, German, Portuguese, etc.)
-- [ ] Custom language pair configuration
+## 🔮 Coming Soon
 
-### 🤖 Phase 4: AI-Enhanced Translation (Future)
-
-- [ ] OpenAI integration for context-aware translations
-- [ ] Alternative free LLM API options
-- [ ] Tone and style customization
-- [ ] Professional/casual translation modes
-- [ ] Industry-specific terminology support
+- 🌐 Additional language pairs (French, German, Portuguese, Italian)
+- 🤖 AI-enhanced translations with context awareness
+- 💾 Translation memory for consistency
+- 📚 Custom glossaries for specialized terminology
 
 ## Requirements
 
@@ -65,47 +65,40 @@ A Canva app for translating text elements in your designs with an intelligent re
    - Click **Preview** to open the Canva editor
    - Click **Open** when the app appears in the side panel
 
-## How to Use
+## 📖 Quick Start Guide
 
-### 1. Setup
+### Getting Started
 
-- Open a Canva design with text you want to translate
-- Open the Ctranslator app from the side panel
-- Select text elements you want to translate (Ctrl/Cmd + A for all)
+1. Open your Canva design
+2. Find **Ctranslator** in the Apps panel
+3. Select text elements you want to translate (Ctrl/Cmd + A for all)
 
-### 2. Translate
+### Translating Your Content
 
-- Click **"Translate to English"** (currently Spanish → English)
-- The app will automatically translate all selected text using MyMemory API
-- Wait for translation to complete
+1. **Choose Direction**: Click "Translate to English" or "Translate to Spanish"
+2. **Wait**: Automatic translation takes a few seconds
+3. **Review**: Check each translation and make edits as needed
+4. **Approve**: Mark each translation as reviewed
+5. **Apply**: Save all translations to your design
 
-### 3. Review
+### Making Changes
 
-- Review each translation in the multiline text fields
-- Edit any translations that need adjustment
-- Check the "✓ Reviewed & approved" box for each item
-- All items must be reviewed before proceeding
+- **Edit Translations**: Click in any translation field to modify text
+- **Undo All Changes**: Use the "Undo Changes" button (keep text selected!)
+- **Start Fresh**: Click "New Translation" to begin again
 
-### 4. Apply
+💡 **Pro Tip**: Always keep your text elements selected throughout the workflow to enable undo functionality.
 
-- Click **"Apply Translations"** to replace the original text with translations
-- Original text is automatically backed up for undo
+## 🔐 Privacy & Technology
 
-### 5. Finalize
+**Translation Service**: We use MyMemory API, a trusted free translation service
 
-- Review the before/after comparison
-- **Undo Changes**: Restore original text (requires text selection)
-- **New Translation**: Start a fresh translation session
+- ✅ No sign-up or API keys required
+- ✅ Your text is processed securely
+- ✅ No data is stored permanently
+- ✅ Reliable 99.9% uptime
 
-## Translation API
-
-The app uses **MyMemory API**, a free translation service:
-
-- ✅ Free to use (no API key required)
-- ✅ Reliable (99.9% uptime)
-- ✅ Supports 100+ language pairs
-- ✅ 500 character limit per request
-- ⚠️ Daily quota: 10,000 words/day (free tier)
+**Fair Usage**: Free tier includes 10,000 words per day - plenty for most users!
 
 ## Project Structure
 
@@ -149,44 +142,64 @@ CANVA_APP_ORIGIN=https://app-aabbccddeeff.canva-apps.com
 CANVA_HMR_ENABLED=true
 ```
 
-## Limitations
+## ⚠️ Important Notes
 
-- Maximum 50 text elements per translation session
-- 500 character limit per text element (MyMemory API)
-- 10,000 words per day (free tier)
-- Currently only Spanish → English (bidirectional)
-- Font styles are preserved by Canva but not explicitly managed by the app
-- Requires manual layout adjustment if translated text is longer/shorter
+**Batch Limits**
 
-## Contributing
+- Translate up to 50 text elements at once
+- 500 characters per text element
+- For larger projects, translate in multiple batches
 
-Ctranslator is open to collaboration! We're actively working on:
+**After Translation**
 
-- Bidirectional translation (ES ↔ EN)
-- Multi-language support
-- AI-enhanced translations
+- Font styles are preserved automatically
+- Text length may change (English/Spanish differ)
+- Adjust text boxes manually if needed for perfect layouts
 
-If you'd like to contribute, please reach out or submit a PR.
+**Best Results**
 
-## Tips
+- Always review translations - machine translation isn't perfect
+- Keep text elements selected for undo functionality
+- Translate important sections first (headlines, key messages)
 
-- Always review translations for accuracy
-- Keep text elements selected during workflow for undo functionality
-- Translate in batches if working with large designs
-- Check text layout after applying translations
+## 💡 Tips for Best Results
 
-## Team
+- **Review Everything**: Machine translation is good but not perfect - always check translations
+- **Keep Selection Active**: Don't deselect text elements until you're done (enables undo)
+- **Work in Batches**: For large designs, translate sections separately
+- **Check Layout**: Adjust text boxes after translation if text length changed
+- **Save Often**: Use Canva's auto-save, but consider duplicating your design first
 
-- **Lead Developer**: GriefSmith
-- **Status**: Open to collaboration
-- **Looking for**: Contributors interested in translation, i18n, and LLM integration
+## 🤝 Support & Feedback
+
+Found a bug? Have a feature request? Want to contribute?
+
+- **Developer**: GriefSmith
+- **Feedback**: Open to suggestions for improvements
+- **Contributing**: PRs welcome on GitHub
 
 ## License
 
 See [LICENSE.md](LICENSE.md) for details.
 
-## Documentation
+## 📚 Documentation
 
-For detailed usage instructions, see [TRANSLATION_GUIDE.md](TRANSLATION_GUIDE.md)
+- **Detailed User Guide**: See [TRANSLATION_GUIDE.md](TRANSLATION_GUIDE.md) for comprehensive instructions
+- **Canva Apps**: Learn more at [canva.dev/docs/apps](https://www.canva.dev/docs/apps/)
 
-For Canva Apps SDK documentation, visit [canva.dev/docs/apps](https://www.canva.dev/docs/apps/)
+## ❓ FAQ
+
+**Q: Is my data safe?**
+A: Yes! Translations are processed securely via MyMemory API and not stored permanently.
+
+**Q: Can I translate other language pairs?**
+A: Currently only Spanish ↔ English. More languages coming soon!
+
+**Q: What if translations look wrong?**
+A: Machine translation needs human review - that's why we built the review workflow. Edit any translation before applying.
+
+**Q: Can I undo after closing the design?**
+A: No, undo only works in the same session. Always duplicate your design first for safety.
+
+**Q: How many elements can I translate?**
+A: Up to 50 text elements per batch. For larger projects, translate in multiple sessions.
