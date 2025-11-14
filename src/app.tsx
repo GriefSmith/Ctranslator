@@ -13,8 +13,11 @@ import {
   MultilineInput,
 } from "@canva/app-ui-kit";
 import { useSelection } from "utils/use_selection_hook";
-import { useState, useCallback, type ReactElement } from "react";
+import { useState, useCallback, useEffect, type ReactElement } from "react";
 import * as styles from "styles/components.css";
+import { getGlobalTracker, hashUserToken } from "utils/usage_tracker_v2";
+import { getGlobalRateLimiter } from "utils/rate_limiter";
+import { auth } from "@canva/user";
 
 export const DOCS_URL = "https://www.canva.dev/docs/apps/";
 
@@ -32,6 +35,11 @@ type TranslationItem = {
 
 // Configuration
 const MAX_ELEMENTS = 50; // Limit to prevent overwhelming the UI
+const API_EMAIL = "app@ctranslator.canva"; // Email for 50k chars/day limit
+
+// Initialize global rate limiter (token bucket: 10 capacity, 2 tokens/sec)
+// This allows small bursts while maintaining ~120 req/min sustained rate
+const rateLimiter = getGlobalRateLimiter();
 
 // Language configuration for each direction
 const LANGUAGE_CONFIG = {
@@ -261,7 +269,8 @@ const translateText = async (
     // Using MyMemory API - free, no key required, better reliability
     // Preserve newlines in the API call by encoding them properly
     const encodedText = encodeURIComponent(cleanText);
-    const url = `https://api.mymemory.translated.net/get?q=${encodedText}&langpair=${sourceLang}|${targetLang}`;
+    // Add email parameter to get 50k chars/day instead of 5k
+    const url = `https://api.mymemory.translated.net/get?q=${encodedText}&langpair=${sourceLang}|${targetLang}&de=${encodeURIComponent(API_EMAIL)}`;
 
     const response = await fetch(url, {
       method: "GET",
@@ -271,6 +280,14 @@ const translateText = async (
     if (!response.ok) {
       const errorText = await response.text();
       console.error("API Error Response:", errorText);
+
+      // Check for quota exceeded
+      if (response.status === 429 || response.status === 403) {
+        throw new Error(
+          "Daily translation limit exceeded. Please try again tomorrow.",
+        );
+      }
+
       throw new Error(`Translation API returned ${response.status}`);
     }
 
@@ -278,10 +295,24 @@ const translateText = async (
 
     if (data.responseStatus !== 200) {
       console.error("API Response:", data);
+
+      // Check for quota messages
+      if (
+        data.responseDetails?.includes("QUOTA") ||
+        data.responseDetails?.includes("LIMIT")
+      ) {
+        throw new Error(
+          "Daily translation limit reached. Please try again tomorrow.",
+        );
+      }
+
       throw new Error(data.responseDetails || "Translation failed");
     }
 
     const translatedText = data.responseData?.translatedText || text;
+
+    // Record usage for this translation
+    getGlobalTracker().recordUsage(cleanText.length);
 
     // Restore bullet formatting if original had bullets
     return restoreBulletFormatting(text, translatedText);
@@ -314,6 +345,70 @@ export const App = () => {
     {},
   ); // Backup of originals
 
+  // Initialize usage tracker (will attempt user-based, fallback to localStorage)
+  const [tracker] = useState(() => getGlobalTracker("userBased"));
+  const [trackingMode, setTrackingMode] = useState<string>("initializing");
+
+  // Usage tracking state
+  const [usageInfo, setUsageInfo] = useState(() => tracker.getUsageMessage());
+  const [batchValidation, setBatchValidation] = useState<{
+    canProceed: boolean;
+    message: string;
+    tone: "info" | "warning" | "critical";
+  } | null>(null);
+
+  // Initialize user authentication and tracking
+  useEffect(() => {
+    const initializeUserTracking = async () => {
+      try {
+        // Attempt to get Canva user token
+        const userToken = await auth.getCanvaUserToken();
+
+        if (userToken) {
+          // Hash the token for privacy
+          const userHash = await hashUserToken(userToken);
+          tracker.setUserIdentifier(userHash);
+          setTrackingMode("user-based");
+          console.log("[Ctranslator] User-based tracking enabled");
+        } else {
+          setTrackingMode("localStorage");
+          console.log("[Ctranslator] Falling back to localStorage tracking");
+        }
+      } catch (err) {
+        // Fallback to localStorage if user auth fails
+        setTrackingMode("localStorage");
+        console.log(
+          "[Ctranslator] User auth unavailable, using localStorage tracking",
+        );
+      }
+
+      // Update initial usage info after tracker is configured
+      setUsageInfo(tracker.getUsageMessage());
+    };
+
+    initializeUserTracking();
+  }, [tracker]);
+
+  // Update usage info periodically
+  useEffect(() => {
+    const updateUsage = () => {
+      setUsageInfo(tracker.getUsageMessage());
+    };
+
+    updateUsage();
+    const interval = setInterval(updateUsage, 30000); // Update every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [tracker]);
+
+  // Validate batch when selection changes
+  useEffect(() => {
+    if (currentSelection && currentSelection.count > 0 && stage === "setup") {
+      // Don't validate immediately, wait for user to review
+      setBatchValidation(null);
+    }
+  }, [currentSelection, stage]);
+
   // Scan and translate all text in the design
   const scanAndTranslate = useCallback(async () => {
     // Validation
@@ -338,10 +433,36 @@ export const App = () => {
       const draft = await currentSelection.read();
       setCurrentDraft(draft); // Store draft for later use
 
+      // Collect all text for pre-flight validation
+      const textsToTranslate: string[] = [];
+      for (let i = 0; i < draft.contents.length; i++) {
+        const content = draft.contents[i];
+        if (content.text && content.text.trim().length > 0) {
+          textsToTranslate.push(content.text);
+        }
+      }
+
+      // Pre-flight check: Validate against daily quota
+      const validation = tracker.validateTranslationBatch(textsToTranslate);
+
+      if (!validation.canProceed) {
+        setError(validation.message);
+        const resetInfo = tracker.getTimeUntilReset();
+        setSuccessMessage(`💡 ${resetInfo.message}`);
+        setStage("setup");
+        setIsProcessing(false);
+        return;
+      }
+
+      // Show warning if close to limit
+      if (validation.tone === "critical" || validation.tone === "warning") {
+        setSuccessMessage(validation.message);
+      }
+
       const translationItems: TranslationItem[] = [];
       let failedCount = 0;
 
-      // Collect and translate all text elements
+      // Collect and translate all text elements with rate limiting
       for (let i = 0; i < draft.contents.length; i++) {
         const content = draft.contents[i];
         const originalText = content.text;
@@ -353,6 +474,9 @@ export const App = () => {
         }
 
         try {
+          // Use token bucket rate limiter (allows bursts, smoother than fixed delays)
+          await rateLimiter.consume(1);
+
           // Translate each text element using current direction
           const config = LANGUAGE_CONFIG[direction];
           const translatedText = await translateText(
@@ -371,7 +495,20 @@ export const App = () => {
         } catch (err) {
           console.error(`Failed to translate item ${i}:`, err);
           failedCount++;
-          // Add with original text as fallback
+
+          // Check if it's a quota error
+          const errorMsg = err instanceof Error ? err.message : "";
+          if (errorMsg.includes("limit") || errorMsg.includes("QUOTA")) {
+            // Stop processing on quota errors
+            setError(`❌ ${errorMsg}`);
+            const resetInfo = tracker.getTimeUntilReset();
+            setSuccessMessage(`💡 ${resetInfo.message}`);
+            setStage("setup");
+            setIsProcessing(false);
+            return;
+          }
+
+          // Add with original text as fallback for other errors
           translationItems.push({
             id: `item-${i}`,
             originalText,
@@ -381,6 +518,9 @@ export const App = () => {
           });
         }
       }
+
+      // Update usage display after translation
+      setUsageInfo(tracker.getUsageMessage());
 
       if (translationItems.length === 0) {
         setError(
@@ -550,6 +690,19 @@ export const App = () => {
         {/* Setup Stage */}
         {stage === "setup" && (
           <>
+            {/* Usage Info Display */}
+            <Alert
+              tone={
+                usageInfo.tone === "critical"
+                  ? "critical"
+                  : usageInfo.tone === "warning"
+                    ? "warn"
+                    : "info"
+              }
+            >
+              {usageInfo.message}
+            </Alert>
+
             <Box paddingY="1u">
               <Rows spacing="2u">
                 <Rows spacing="1u">
@@ -599,6 +752,19 @@ export const App = () => {
                 ? langConfig.translatingText
                 : langConfig.buttonText}
             </Button>
+
+            <Text size="xsmall" tone="tertiary" alignment="center">
+              Powered by MyMemory API • Resets daily at midnight UTC
+              {trackingMode !== "initializing" && (
+                <span>
+                  {" "}
+                  •{" "}
+                  {trackingMode === "user-based"
+                    ? "User-based tracking"
+                    : "Browser tracking"}
+                </span>
+              )}
+            </Text>
           </>
         )}
 
