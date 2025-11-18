@@ -90,14 +90,14 @@ Transform your Canva designs with professional Spanish ↔ English translation. 
 
 ## 🔐 Privacy & Technology
 
-**Translation Service**: We use MyMemory API, a trusted free translation service
+**Translation Service**: Powered by [MyMemory Translation API](https://mymemory.translated.net/) by Translated.net
 
-- ✅ No sign-up or API keys required
-- ✅ Your text is processed securely
-- ✅ No data is stored permanently
+- ✅ Professional translation memory technology
+- ✅ Secure, privacy-focused processing
+- ✅ No permanent data storage
 - ✅ Reliable 99.9% uptime
 
-**Fair Usage**: Free tier includes 10,000 words per day - plenty for most users!
+**Fair Usage**: Currently using free tier (50,000 characters/day with registered email). Seeking partnership opportunities for marketplace launch.
 
 ## Project Structure
 
@@ -140,6 +140,117 @@ Example `.env`:
 CANVA_APP_ORIGIN=https://app-aabbccddeeff.canva-apps.com
 CANVA_HMR_ENABLED=true
 ```
+
+## 🚀 Deployment & Sharing
+
+### Deploying to Production
+
+This app is configured for **Vercel deployment** (zero backend required):
+
+1. **Build the app:**
+
+   ```bash
+   npm run build
+   ```
+
+   This creates a production bundle in the `dist/` folder.
+
+2. **Deploy to Vercel:**
+
+   ```bash
+   npx vercel --prod
+   ```
+
+   Or connect your GitHub repo to Vercel for automatic deployments.
+
+3. **Configure in Canva Developer Portal:**
+   - Go to your app in the [Developer Portal](https://www.canva.com/developers/apps)
+   - Under **App source**, select **Production URL**
+   - Enter your Vercel deployment URL (e.g., `https://your-app.vercel.app`)
+   - Click **Save**
+
+**Important:** Your deployment must serve:
+
+- `app.js` - Main application bundle
+- `index.html` - Entry HTML file
+
+### Sharing with Collaborators
+
+#### Option 1: Local Development Access
+
+For team members to test locally:
+
+1. Share the repository
+2. They run:
+   ```bash
+   npm install
+   npm start
+   ```
+3. They create their own app in the Developer Portal
+4. Point their app to `http://localhost:8080`
+5. Click "preview" on the developer portal (first time)
+
+#### Option 2: Shared Development URL
+
+Deploy to Vercel and share the URL:
+
+1. Deploy to Vercel (see above)
+2. Share the Vercel URL with collaborators
+3. They add it as a Development URL in their Canva Developer Portal
+
+### Submitting for Canva Review
+
+Before submitting to Canva's app marketplace:
+
+1. **Ensure manifest is complete:**
+   - ✅ `canva-app.json` has `extensions` field registered
+   - ✅ All required permissions are declared
+   - ✅ App name and description are finalized
+
+2. **Deploy to production:**
+   - Use a stable production URL (not localhost)
+   - Ensure HTTPS is enabled (Vercel handles this)
+
+3. **Test thoroughly:**
+   - Test with multiple design types
+   - Test edge cases (empty text, long text, special characters)
+   - Verify error handling and user feedback
+
+4. **Submit in Developer Portal:**
+   - Go to your app in the [Developer Portal](https://www.canva.com/developers/apps)
+   - Complete all required fields
+   - Submit for review
+
+**Review Checklist:**
+
+- [ ] App loads without console errors
+- [ ] All permissions are necessary and justified
+- [ ] Error messages are user-friendly
+- [ ] UI follows Canva design guidelines
+- [ ] Privacy policy (if collecting user data)
+- [ ] Support contact information
+
+### Architecture Overview
+
+**Frontend:** Pure React app using Canva Apps SDK
+
+- No backend server required
+- Runs entirely in the Canva editor
+- Uses external MyMemory API for translations
+
+**Key Files:**
+
+- `canva-app.json` - App manifest and permissions
+- `src/app.tsx` - Main application logic
+- `src/index.tsx` - Entry point and React initialization
+- `webpack.config.ts` - Build configuration
+- `vercel.json` - Deployment configuration
+
+**External Dependencies:**
+
+- MyMemory API (free translation service, no auth required)
+- No database or persistent storage needed
+- User tracking via Canva user tokens (hashed for privacy)
 
 ## ⚠️ Important Notes
 

@@ -16,5 +16,10 @@
         "type": "mandatory"
       }
     ]
+  },
+  "intent": {
+    "design_editor": {
+      "enrolled": true
+    }
   }
 }

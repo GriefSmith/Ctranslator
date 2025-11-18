@@ -19,12 +19,8 @@ import { getGlobalTracker, hashUserToken } from "utils/usage_tracker_v2";
 import { getGlobalRateLimiter } from "utils/rate_limiter";
 import { auth } from "@canva/user";
 
-export const DOCS_URL = "https://www.canva.dev/docs/apps/";
-
-// Translation direction type
 type TranslationDirection = "es-to-en" | "en-to-es";
 
-// Translation item type
 type TranslationItem = {
   id: string;
   originalText: string;
@@ -34,14 +30,13 @@ type TranslationItem = {
 };
 
 // Configuration
-const MAX_ELEMENTS = 50; // Limit to prevent overwhelming the UI
-const API_EMAIL = "app@ctranslator.canva"; // Email for 50k chars/day limit
+const MAX_ELEMENTS = 50;
+const API_EMAIL = "chavachcj@gmail.com"; // Email for MyMemory API (increases daily limit)
 
 // Initialize global rate limiter (token bucket: 10 capacity, 2 tokens/sec)
 // This allows small bursts while maintaining ~120 req/min sustained rate
 const rateLimiter = getGlobalRateLimiter();
 
-// Language configuration for each direction
 const LANGUAGE_CONFIG = {
   "es-to-en": {
     sourceLang: "es",
@@ -64,9 +59,6 @@ const LANGUAGE_CONFIG = {
 // Bullet characters that indicate list items
 const BULLET_PATTERNS = /^[\s]*[•\-*\u2022\u2023\u25E6\u2043\u2219]\s+/m;
 
-/**
- * Checks if text contains bulleted list formatting
- */
 const hasBulletFormatting = (text: string): boolean => {
   return BULLET_PATTERNS.test(text);
 };
@@ -676,8 +668,6 @@ export const App = () => {
   return (
     <div className={styles.scrollContainer}>
       <Rows spacing="2u">
-        <Title size="medium">Ctranslator</Title>
-
         <Text>
           Professional bidirectional translation tool for Canva designs.
           Currently supports Spanish ↔ English with intelligent review
